@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffd1e8" />
+  <title>Happy Birthday</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- birthday song -->
+  <audio id="song" src="the_mountain-happy-birthday-576570.mp3" loop preload="auto"></audio>
+
+  <!-- music toggle -->
+  <button id="musicToggle" class="music-btn" aria-label="Toggle music" title="Music">
+    <span class="music-icon">🎵</span>
+  </button>
+
+  <!-- background layer: stars + nebula (behind the card) -->
+  <canvas id="bg"></canvas>
+
+  <!-- ambient glowing aura -->
+  <div class="aura aura-1"></div>
+  <div class="aura aura-2"></div>
+  <div class="aura aura-3"></div>
+
+  <main class="stage">
+    <div class="orb" aria-hidden="true">
+      <img class="orb-photo" src="div.jpg" alt="Divyanshi" />
+    </div>
+
+    <p class="eyebrow">🎉 Happy Birthday 🎈</p>
+    <h1 id="name" class="name">Divyanshi</h1>
+
+    <p id="message" class="message">
+      Wishing you a day as bright as you are. Here's to more laughter,
+      more adventures, and a year that treats you exactly the way you deserve.
+    </p>
+
+    <button id="surprise" class="btn">
+      <span>Reveal a wish</span>
+    </button>
+    <p id="surpriseText" class="surprise-text"></p>
+  </main>
+
+  <!-- foreground layer: balloons + glitter + wishes (above the card, tappable) -->
+  <canvas id="fx"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>

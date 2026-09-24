@@ -1,0 +1,337 @@
+:root {
+  --ink: #3a2a55;
+  --muted: #6b5a86;
+  --violet: #8b5cff;
+  --pink: #ff5c9d;
+  --cyan: #33e0ff;
+  --yellow: #ffd166;
+  --card: rgba(255, 255, 255, 0.55);
+  --stroke: rgba(255, 255, 255, 0.7);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  --mx: 0px;
+  --my: 0px;
+  min-height: 100vh;
+  min-height: 100dvh; /* handles mobile browser address bar */
+  display: grid;
+  place-items: center;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  padding: 20px;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #ffd1e8 0%, #ffdcc2 22%, #ffd6f0 42%, #dcd4ff 62%, #c9edff 82%, #d4ffe0 100%);
+  background-size: 320% 320%;
+  animation: shift 16s ease infinite;
+  /* mobile-friendly: no text selection, no tap highlight, no overscroll bounce */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+@keyframes shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* floating music toggle */
+.music-btn {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 10;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  box-shadow: 0 8px 22px rgba(139, 92, 255, 0.45);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+}
+.music-btn:active { transform: scale(0.92); }
+.music-btn.playing {
+  animation: musicpulse 1.4s ease-in-out infinite;
+}
+.music-btn.muted { opacity: 0.65; }
+@keyframes musicpulse {
+  0%, 100% { box-shadow: 0 8px 22px rgba(139,92,255,0.45); }
+  50%      { box-shadow: 0 8px 30px rgba(255,92,157,0.7); transform: scale(1.06); }
+}
+
+/* background canvas: stars + nebula, sits behind the card */
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+/* foreground canvas: balloons + glitter + wishes, floats above the card.
+   pointer-events stay off so the button/card work; taps are handled on window. */
+#fx {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ---- colorful glowing auras ---- */
+.aura {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  z-index: 0;
+  mix-blend-mode: multiply;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.aura-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle at 30% 30%, var(--pink), transparent 65%);
+  top: -120px; left: -80px;
+  transform: translate(var(--mx), var(--my));
+  animation: drift1 16s ease-in-out infinite alternate;
+}
+.aura-2 {
+  width: 480px; height: 480px;
+  background: radial-gradient(circle at 60% 40%, var(--violet), transparent 65%);
+  bottom: -140px; right: -60px;
+  transform: translate(calc(var(--mx) * -1), calc(var(--my) * -1));
+  animation: drift2 20s ease-in-out infinite alternate;
+}
+.aura-3 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle at 50% 50%, var(--yellow), transparent 65%);
+  top: 40%; left: 55%;
+  transform: translate(calc(var(--mx) * 1.4), calc(var(--my) * -0.8));
+  animation: drift3 24s ease-in-out infinite alternate;
+}
+@keyframes drift1 { to { transform: translate(calc(var(--mx) + 120px), calc(var(--my) + 80px)) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(calc(var(--mx) * -1 - 100px), calc(var(--my) * -1 - 60px)) scale(1.1); } }
+@keyframes drift3 { to { transform: translate(calc(var(--mx) * 1.4 - 140px), calc(var(--my) * -0.8 + 40px)) scale(1.2); } }
+
+/* ---- stage / content ---- */
+.stage {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 640px;
+  width: 100%;
+  padding: 50px 36px;
+  border-radius: 32px;
+  /* colorful translucent gradient glass instead of plain white */
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.75), rgba(255,255,255,0.45)),
+    linear-gradient(135deg, rgba(255,92,157,0.35), rgba(139,92,255,0.3) 45%, rgba(51,196,255,0.3) 75%, rgba(255,209,102,0.35));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 24px 70px rgba(139, 92, 255, 0.28);
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* animated rainbow glow border around the card */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 34px;
+  padding: 2px;
+  background: linear-gradient(120deg, var(--pink), var(--violet), var(--cyan), var(--yellow), var(--pink));
+  background-size: 300% 300%;
+  animation: borderflow 8s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+}
+@keyframes borderflow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+@keyframes rise {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* glowing centerpiece orb — photo framed by a spinning gradient ring */
+.orb {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  animation: breathe 5s ease-in-out infinite;
+}
+.orb::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--violet), var(--pink), var(--yellow), var(--cyan), var(--violet));
+  animation: spin 12s linear infinite;
+  z-index: 0;
+}
+.orb-photo {
+  position: relative;
+  z-index: 1;
+  width: 276px;
+  height: 276px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #fff;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
+  /* start blurred + dim, then reveal on load */
+  filter: blur(22px);
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    filter 2.6s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 2.6s ease,
+    transform 2.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.orb-photo.revealed {
+  filter: blur(0);
+  opacity: 1;
+  transform: scale(1);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 55px 6px rgba(255,92,157,0.4),  0 0 110px 26px rgba(139,92,255,0.22); }
+  50%      { box-shadow: 0 0 75px 12px rgba(255,209,102,0.4), 0 0 140px 36px rgba(51,224,255,0.28); }
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pink);
+  margin-bottom: 14px;
+}
+
+.name {
+  font-size: clamp(42px, 8vw, 72px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 22px;
+  background: linear-gradient(100deg, var(--pink) 0%, var(--violet) 50%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.message {
+  font-size: clamp(15px, 2.4vw, 18px);
+  line-height: 1.75;
+  font-weight: 500;
+  color: #4a3a68;
+  max-width: 470px;
+  margin: 0 auto;
+}
+
+.btn {
+  margin-top: 40px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  padding: 15px 32px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(100deg, var(--pink), var(--violet), var(--cyan));
+  background-size: 200% 100%;
+  box-shadow: 0 12px 30px rgba(255, 92, 157, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.5s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  background-position: 100% 0;
+  box-shadow: 0 16px 38px rgba(139, 92, 255, 0.5);
+}
+.btn:active { transform: translateY(0); }
+
+.surprise-text {
+  margin-top: 22px;
+  min-height: 26px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--violet);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.surprise-text.show { opacity: 1; transform: translateY(0); }
+
+/* ============ PHONE LAYOUT ============ */
+@media (max-width: 600px) {
+  body { padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom)); }
+
+  .stage {
+    padding: 30px 20px 34px;
+    border-radius: 26px;
+    max-width: 100%;
+  }
+  .stage::before { border-radius: 28px; }
+
+  /* photo sized to the viewport width so it fills nicely on any phone */
+  .orb {
+    width: min(72vw, 300px);
+    height: min(72vw, 300px);
+    margin: 0 auto 28px;
+  }
+  .orb-photo {
+    width: min(66vw, 276px);
+    height: min(66vw, 276px);
+    border-width: 4px;
+  }
+
+  .eyebrow { font-size: 11px; letter-spacing: 3px; margin-bottom: 10px; }
+  .name { font-size: clamp(38px, 13vw, 60px); margin-bottom: 16px; }
+  .message { font-size: 15px; line-height: 1.7; }
+
+  /* bigger, thumb-friendly button */
+  .btn {
+    margin-top: 30px;
+    padding: 16px 34px;
+    font-size: 16px;
+    width: auto;
+  }
+
+  /* lighter auras so phones stay smooth */
+  .aura { filter: blur(60px); opacity: 0.5; }
+  .aura-1 { width: 320px; height: 320px; }
+  .aura-2 { width: 300px; height: 300px; }
+  .aura-3 { width: 280px; height: 280px; }
+}
+
+/* very short screens (small phones in landscape / tight portrait) */
+@media (max-height: 680px) and (max-width: 600px) {
+  .orb { width: min(52vw, 220px); height: min(52vw, 220px); margin-bottom: 20px; }
+  .orb-photo { width: min(47vw, 200px); height: min(47vw, 200px); }
+  .name { font-size: clamp(32px, 11vw, 48px); margin-bottom: 12px; }
+  .message { font-size: 14px; }
+  .btn { margin-top: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura, .orb, body { animation: none; }
+}
