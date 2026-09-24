@@ -42,11 +42,16 @@ btn.addEventListener("click", () => {
   }, 180);
 });
 
-// ---- shared audio volume state (song ducks under celebrity voices) ----
+// ---- shared audio state (song steps aside for celebrity voices) ----
+// NOTE: mobile browsers (iOS/Android) IGNORE audio.volume changes — only the
+// hardware buttons control volume there. So to make the voice clear on a PHONE
+// we PAUSE the birthday song while a recording plays and RESUME it after.
+// On desktop we also dip the volume for a smooth crossfade.
 const SONG_FULL = 0.85;   // normal background song volume
-const SONG_DUCK = 0.03;   // volume while a celebrity recording plays
+const SONG_DUCK = 0.03;   // desktop-only: faint volume while a voice plays
 let isDucked = false;     // true while a voice note is playing
 let fadeTimer = null;     // the single active volume-ramp timer
+let songWasPlaying = false; // remember state so we can resume correctly
 
 // ---- Celebrity voice wishes ----
 const celebAudio = document.getElementById("celebAudio");
@@ -70,20 +75,27 @@ function stopCeleb() {
   restoreSongVolume();
 }
 
-// duck / restore the background birthday song so the voice is clear.
-// A single "isDucked" flag is the source of truth; the song's own fade-in
-// respects it so nothing fights the duck.
+// Make room for a celebrity voice: pause the song (works on mobile) and,
+// on desktop, also dip the volume.
 function duckSong() {
   isDucked = true;
   if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
-  if (typeof song !== "undefined") song.volume = SONG_DUCK; // very faint under the voice
+  if (typeof song === "undefined") return;
+  songWasPlaying = !song.paused;
+  song.volume = SONG_DUCK;   // ignored on mobile, but helps desktop
+  song.pause();              // the reliable cross-platform way to suppress it
 }
+// Bring the song back after the voice ends/stops.
 function restoreSongVolume() {
   isDucked = false;
-  if (typeof song === "undefined" || song.paused) return;
+  if (typeof song === "undefined") return;
+  if (!songWasPlaying) return; // it wasn't playing before, leave it paused
+  const resume = song.play();
+  if (resume && resume.catch) resume.catch(() => {});
+  // ramp volume back up (desktop); harmless on mobile
   if (fadeTimer) clearInterval(fadeTimer);
   fadeTimer = setInterval(() => {
-    if (isDucked) { clearInterval(fadeTimer); fadeTimer = null; return; } // re-ducked meanwhile
+    if (isDucked) { clearInterval(fadeTimer); fadeTimer = null; return; }
     song.volume = Math.min(SONG_FULL, song.volume + 0.05);
     if (song.volume >= SONG_FULL) { clearInterval(fadeTimer); fadeTimer = null; }
   }, 80);
