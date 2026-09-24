@@ -44,6 +44,28 @@
       <span>Reveal a wish</span>
     </button>
     <p id="surpriseText" class="surprise-text"></p>
+
+    <!-- Where is my cake -->
+    <div class="action-row">
+      <a id="cakeBtn" class="btn btn-cake" href="xyz" target="_blank" rel="noopener">
+        <span>Where is my cake? 🎂</span>
+      </a>
+    </div>
+
+    <!-- Want more surprise -->
+    <div class="action-row">
+      <button id="moreBtn" class="btn btn-more">
+        <span>Want more surprise? 🎁</span>
+      </button>
+    </div>
+
+    <!-- Yes / Of course yes options (hidden until asked) -->
+    <div id="choiceRow" class="choice-row" hidden>
+      <button class="btn btn-choice" data-choice="yes"><span>Yes</span></button>
+      <button class="btn btn-choice" data-choice="ofcourse"><span>Of course yes 💖</span></button>
+    </div>
+
+    <p id="finalMessage" class="final-message"></p>
   </main>
 
   <!-- foreground layer: balloons + glitter + wishes (above the card, tappable) -->

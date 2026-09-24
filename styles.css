@@ -11,30 +11,33 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body { height: 100%; }
-
+html { height: 100%; }
 body {
   --mx: 0px;
   --my: 0px;
   min-height: 100vh;
   min-height: 100dvh; /* handles mobile browser address bar */
-  display: grid;
-  place-items: center;
+  /* center vertically when content is short, but allow scrolling when it's tall */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   color: var(--ink);
-  padding: 20px;
-  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  overflow: hidden;
+  padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   position: relative;
   background: linear-gradient(135deg, #ffd1e8 0%, #ffdcc2 22%, #ffd6f0 42%, #dcd4ff 62%, #c9edff 82%, #d4ffe0 100%);
   background-size: 320% 320%;
   animation: shift 16s ease infinite;
-  /* mobile-friendly: no text selection, no tap highlight, no overscroll bounce */
+  /* allow vertical scroll for tall content, no horizontal scroll */
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* mobile-friendly: no text selection, no tap highlight */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
-  overscroll-behavior: none;
   touch-action: manipulation;
 }
 @keyframes shift {
@@ -131,6 +134,8 @@ body {
   text-align: center;
   max-width: 640px;
   width: 100%;
+  margin: auto;          /* center in the flex column, push scroll when tall */
+  flex-shrink: 0;        /* keep natural height so tall content scrolls */
   padding: 50px 36px;
   border-radius: 32px;
   /* colorful translucent gradient glass instead of plain white */
@@ -280,6 +285,60 @@ body {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .surprise-text.show { opacity: 1; transform: translateY(0); }
+
+/* rows of extra action buttons */
+.action-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+.btn.btn-cake {
+  margin-top: 0;
+  text-decoration: none;
+  background: linear-gradient(100deg, var(--yellow), var(--pink));
+  box-shadow: 0 12px 30px rgba(255, 140, 66, 0.4);
+  display: inline-flex;
+  align-items: center;
+}
+.btn.btn-more {
+  margin-top: 0;
+  background: linear-gradient(100deg, var(--violet), var(--cyan));
+  box-shadow: 0 12px 30px rgba(51, 196, 255, 0.4);
+}
+
+/* yes / of course yes */
+.choice-row {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn.btn-choice {
+  margin-top: 0;
+  padding: 13px 26px;
+  font-size: 15px;
+  background: linear-gradient(100deg, var(--pink), var(--violet));
+}
+.choice-row[hidden] { display: none; }
+
+/* the heartfelt final message */
+.final-message {
+  margin-top: 22px;
+  min-height: 24px;
+  font-size: clamp(16px, 3.6vw, 20px);
+  font-weight: 700;
+  line-height: 1.5;
+  background: linear-gradient(100deg, var(--pink), var(--violet), var(--cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.final-message.show { opacity: 1; transform: translateY(0) scale(1); }
 
 /* ============ PHONE LAYOUT ============ */
 @media (max-width: 600px) {

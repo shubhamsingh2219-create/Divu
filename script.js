@@ -37,9 +37,35 @@ btn.addEventListener("click", () => {
     text.classList.add("show");
     widx++;
     shootStar();
-    launchBalloons(6);
-    glitterBurst(90);
+    launchBalloons(isTouch ? 3 : 6);
+    glitterBurst(isTouch ? 55 : 90);
   }, 180);
+});
+
+// ---- Want more surprise? -> Yes / Of course yes -> heartfelt message ----
+const moreBtn = document.getElementById("moreBtn");
+const choiceRow = document.getElementById("choiceRow");
+const finalMessage = document.getElementById("finalMessage");
+
+moreBtn.addEventListener("click", () => {
+  choiceRow.hidden = false;
+  moreBtn.disabled = true;
+  moreBtn.style.opacity = "0.6";
+  moreBtn.style.cursor = "default";
+});
+
+choiceRow.querySelectorAll(".btn-choice").forEach((b) => {
+  b.addEventListener("click", () => {
+    // hide the choices, reveal the message
+    choiceRow.hidden = true;
+    finalMessage.textContent = "More to come, baby — but nothing is more special than you 💛";
+    // let the fade-in transition trigger
+    requestAnimationFrame(() => finalMessage.classList.add("show"));
+    // celebrate
+    if (typeof launchBalloons === "function") launchBalloons(isTouch ? 3 : 6);
+    if (typeof glitterBurst === "function") glitterBurst(isTouch ? 60 : 100);
+    if (typeof shootStar === "function") shootStar();
+  });
 });
 
 // ---- Birthday song ----
@@ -341,7 +367,10 @@ function shootStar() {
   shooters.push({ x: rand(W * 0.1, W * 0.5), y: rand(0, H * 0.3), vx: rand(6, 10), vy: rand(3, 5), life: 60, len: rand(80, 160) });
 }
 setInterval(() => { if (Math.random() < 0.5) shootStar(); }, 4200);
-setInterval(() => { if (balloons.length < 16) launchBalloons(1); }, 3000);
+// fewer balloons + slower spawn on phones so the screen isn't crowded
+const MAX_BALLOONS = isTouch ? 6 : 16;
+const SPAWN_MS = isTouch ? 5200 : 3000;
+setInterval(() => { if (balloons.length < MAX_BALLOONS) launchBalloons(1); }, SPAWN_MS);
 
 function draw() {
   pointer.ex += (pointer.x - pointer.ex) * 0.06;
@@ -464,10 +493,10 @@ function draw() {
 }
 
 resize();
-seedGlitter(70);
-seedBalloons(8);
+seedGlitter(isTouch ? 45 : 70);
+seedBalloons(isTouch ? 3 : 8);
 draw();
 
-// welcoming burst on arrival
-launchBalloons(6);
-glitterBurst(60);
+// welcoming burst on arrival (gentler on phones)
+launchBalloons(isTouch ? 3 : 6);
+glitterBurst(isTouch ? 40 : 60);
