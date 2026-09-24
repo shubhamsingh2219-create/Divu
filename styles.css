@@ -305,6 +305,114 @@ body {
   background: linear-gradient(100deg, var(--violet), var(--cyan));
   box-shadow: 0 12px 30px rgba(51, 196, 255, 0.4);
 }
+.btn.btn-gift {
+  margin-top: 0;
+  background: linear-gradient(100deg, var(--pink), var(--yellow));
+  box-shadow: 0 12px 30px rgba(255, 92, 157, 0.42);
+}
+
+/* ---- surprise gift overlay ---- */
+.gift-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: max(20px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+  background: rgba(20, 12, 34, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: overlayIn 0.35s ease;
+}
+.gift-overlay[hidden] { display: none; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.gift-close {
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+.gift-close:active { transform: scale(0.92); }
+
+.gift-figure {
+  margin: 0;
+  max-width: min(92vw, 560px);
+  text-align: center;
+  animation: giftPop 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+@keyframes giftPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.gift-img {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: 18px;
+  border: 4px solid #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+.gift-caption {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* celebrity voice wishes */
+.celeb-section {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(139, 92, 255, 0.18);
+}
+.celeb-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--violet);
+  margin-bottom: 14px;
+}
+.celeb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 520px) {
+  .celeb-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.btn.btn-celeb {
+  margin-top: 0;
+  padding: 13px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+  color: var(--ink);
+  border: 1.5px solid rgba(139, 92, 255, 0.35);
+  box-shadow: 0 6px 16px rgba(139, 92, 255, 0.18);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn.btn-celeb:hover { box-shadow: 0 10px 24px rgba(139, 92, 255, 0.3); }
+.btn.btn-celeb.playing {
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  border-color: transparent;
+  animation: musicpulse 1.2s ease-in-out infinite;
+}
 
 /* yes / of course yes */
 .choice-row {

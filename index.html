@@ -14,6 +14,9 @@
   <!-- birthday song -->
   <audio id="song" src="the_mountain-happy-birthday-576570.mp3" loop preload="auto"></audio>
 
+  <!-- celebrity voice player (source set on tap) -->
+  <audio id="celebAudio" preload="none"></audio>
+
   <!-- music toggle -->
   <button id="musicToggle" class="music-btn" aria-label="Toggle music" title="Music">
     <span class="music-icon">🎵</span>
@@ -47,9 +50,41 @@
 
     <!-- Where is my cake -->
     <div class="action-row">
-      <a id="cakeBtn" class="btn btn-cake" href="xyz" target="_blank" rel="noopener">
+      <a id="cakeBtn" class="btn btn-cake" href="https://zoma.to/t/bOLdkJze" target="_blank" rel="noopener">
         <span>Where is my cake? 🎂</span>
       </a>
+    </div>
+
+    <!-- Celebrity voice wishes -->
+    <div class="celeb-section">
+      <p class="celeb-title">🎤 Celebrity wishes for you</p>
+      <div class="celeb-grid">
+        <button class="btn btn-celeb" data-src="Shah Ruk Khan.m4a.mp4">
+          <span>▶ Shah Rukh Khan</span>
+        </button>
+        <button class="btn btn-celeb" data-src="Amitab Bacchan.m4a.mp4">
+          <span>▶ Amitabh Bachchan</span>
+        </button>
+        <button class="btn btn-celeb" data-src="Nana Patekar.m4a.mp4">
+          <span>▶ Nana Patekar</span>
+        </button>
+        <button class="btn btn-celeb" data-src="Sunil Shetty.m4a.mp4">
+          <span>▶ Sunil Shetty</span>
+        </button>
+        <button class="btn btn-celeb" data-src="Mithoon.m4a.mp4">
+          <span>▶ Mithoon</span>
+        </button>
+        <button class="btn btn-celeb" data-src="Guddu Pandit.m4a.mp4">
+          <span>▶ Guddu Pandit</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Surprise gift: hand-made painting -->
+    <div class="action-row">
+      <button id="giftBtn" class="btn btn-gift">
+        <span>See your surprise gift 🎁</span>
+      </button>
     </div>
 
     <!-- Want more surprise -->
@@ -70,6 +105,15 @@
 
   <!-- foreground layer: balloons + glitter + wishes (above the card, tappable) -->
   <canvas id="fx"></canvas>
+
+  <!-- Surprise gift overlay -->
+  <div id="giftOverlay" class="gift-overlay" hidden>
+    <button id="giftClose" class="gift-close" aria-label="Close">✕</button>
+    <figure class="gift-figure">
+      <img src="Paint.jpeg" alt="A portrait of Divyanshi, hand-made" class="gift-img" />
+      <figcaption class="gift-caption">Made with love, just for you 💛</figcaption>
+    </figure>
+  </div>
 
   <script src="script.js"></script>
 </body>

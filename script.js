@@ -42,6 +42,103 @@ btn.addEventListener("click", () => {
   }, 180);
 });
 
+// ---- shared audio volume state (song ducks under celebrity voices) ----
+const SONG_FULL = 0.85;   // normal background song volume
+const SONG_DUCK = 0.03;   // volume while a celebrity recording plays
+let isDucked = false;     // true while a voice note is playing
+let fadeTimer = null;     // the single active volume-ramp timer
+
+// ---- Celebrity voice wishes ----
+const celebAudio = document.getElementById("celebAudio");
+const celebButtons = Array.from(document.querySelectorAll(".btn-celeb"));
+let activeCelebBtn = null;
+
+function labelFor(btn, playing) {
+  const span = btn.querySelector("span");
+  const name = span.textContent.replace(/^[▶⏸]\s*/, "");
+  span.textContent = (playing ? "⏸ " : "▶ ") + name;
+}
+
+function stopCeleb() {
+  celebAudio.pause();
+  celebAudio.currentTime = 0;
+  if (activeCelebBtn) {
+    activeCelebBtn.classList.remove("playing");
+    labelFor(activeCelebBtn, false);
+    activeCelebBtn = null;
+  }
+  restoreSongVolume();
+}
+
+// duck / restore the background birthday song so the voice is clear.
+// A single "isDucked" flag is the source of truth; the song's own fade-in
+// respects it so nothing fights the duck.
+function duckSong() {
+  isDucked = true;
+  if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
+  if (typeof song !== "undefined") song.volume = SONG_DUCK; // very faint under the voice
+}
+function restoreSongVolume() {
+  isDucked = false;
+  if (typeof song === "undefined" || song.paused) return;
+  if (fadeTimer) clearInterval(fadeTimer);
+  fadeTimer = setInterval(() => {
+    if (isDucked) { clearInterval(fadeTimer); fadeTimer = null; return; } // re-ducked meanwhile
+    song.volume = Math.min(SONG_FULL, song.volume + 0.05);
+    if (song.volume >= SONG_FULL) { clearInterval(fadeTimer); fadeTimer = null; }
+  }, 80);
+}
+
+celebButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const src = btn.getAttribute("data-src");
+    // tapping the currently playing one stops it
+    if (activeCelebBtn === btn && !celebAudio.paused) {
+      stopCeleb();
+      return;
+    }
+    // switch to this celebrity
+    stopCeleb();
+    celebAudio.src = src;
+    duckSong();
+    const p = celebAudio.play();
+    if (p && p.catch) p.catch(() => {});
+    activeCelebBtn = btn;
+    btn.classList.add("playing");
+    labelFor(btn, true);
+    // little celebration
+    if (typeof glitterBurst === "function") glitterBurst(isTouch ? 30 : 45);
+  });
+});
+
+// when a voice note finishes, reset its button and bring the song back
+celebAudio.addEventListener("ended", stopCeleb);
+
+// ---- Surprise gift: reveal the hand-made painting ----
+const giftBtn = document.getElementById("giftBtn");
+const giftOverlay = document.getElementById("giftOverlay");
+const giftClose = document.getElementById("giftClose");
+
+function openGift() {
+  giftOverlay.hidden = false;
+  if (typeof glitterBurst === "function") glitterBurst(isTouch ? 60 : 100);
+  if (typeof launchBalloons === "function") launchBalloons(isTouch ? 3 : 6);
+}
+function closeGift() {
+  giftOverlay.hidden = true;
+}
+
+giftBtn.addEventListener("click", openGift);
+giftClose.addEventListener("click", closeGift);
+// tap the dark backdrop (but not the image/caption) to close
+giftOverlay.addEventListener("click", (e) => {
+  if (e.target === giftOverlay) closeGift();
+});
+// Escape key closes it too
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !giftOverlay.hidden) closeGift();
+});
+
 // ---- Want more surprise? -> Yes / Of course yes -> heartfelt message ----
 const moreBtn = document.getElementById("moreBtn");
 const choiceRow = document.getElementById("choiceRow");
@@ -77,10 +174,13 @@ let musicStarted = false;
 
 song.volume = 0.0; // start silent, fade in for a gentle intro
 
-function fadeIn(target = 0.85, step = 0.03) {
-  const id = setInterval(() => {
-    song.volume = Math.min(target, song.volume + step);
-    if (song.volume >= target) clearInterval(id);
+function fadeIn(step = 0.03) {
+  if (fadeTimer) clearInterval(fadeTimer);
+  fadeTimer = setInterval(() => {
+    // never fight the duck: if a voice note is playing, stop ramping up
+    if (isDucked) { clearInterval(fadeTimer); fadeTimer = null; song.volume = SONG_DUCK; return; }
+    song.volume = Math.min(SONG_FULL, song.volume + step);
+    if (song.volume >= SONG_FULL) { clearInterval(fadeTimer); fadeTimer = null; }
   }, 80);
 }
 
@@ -213,6 +313,9 @@ function tryPopAt(mx, my) {
 // Only consume the event if a balloon was actually hit; otherwise let the button/card work.
 window.addEventListener("pointerdown", (e) => {
   startMusic(); // ensure the song starts even if this tap pops a balloon
+  // don't pop balloons while the gift overlay is open
+  const giftOpen = giftOverlay && !giftOverlay.hidden;
+  if (giftOpen) return;
   const hit = tryPopAt(e.clientX, e.clientY);
   if (hit) {
     e.preventDefault();
